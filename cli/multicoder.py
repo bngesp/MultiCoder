@@ -225,9 +225,9 @@ class MultiCoderCLI:
         finally:
             # Clean up
             if self.pubsub:
-                await self.pubsub.close()
+                await self.pubsub.aclose()
             if self.redis_client:
-                await self.redis_client.close()
+                await self.redis_client.aclose()
 
 
 def parse_args() -> argparse.Namespace:

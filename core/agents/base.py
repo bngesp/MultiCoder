@@ -92,10 +92,10 @@ class Agent(ABC):
         
         if self.pubsub:
             await self.pubsub.unsubscribe()
-            await self.pubsub.close()
+            await self.pubsub.aclose()
             
         if self.redis_client:
-            await self.redis_client.close()
+            await self.redis_client.aclose()
             
         self.logger.info(f"Agent {self.name} stopped")
     

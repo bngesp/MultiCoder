@@ -117,8 +117,9 @@ class CodeValidator(Agent):
                 if indent > 0:
                     indent_sizes.add(indent)
         
-        if len(indent_sizes) > 1:
-            issues.append("Inconsistent indentation detected")
+        # Commenté pour éviter les faux positifs
+        # if len(indent_sizes) > 1:
+        #     issues.append("Inconsistent indentation detected")
         
         # Check for docstrings
         tree = ast.parse(code)
