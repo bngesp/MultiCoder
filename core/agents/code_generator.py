@@ -24,13 +24,11 @@ class CodeGenerator(Agent):
     
     def __init__(
         self,
-        redis_url: str = "redis://localhost:6379/0",
         log_level: int = logging.INFO
     ) -> None:
         """Initialize the code generator agent.
         
         Args:
-            redis_url: Redis connection string.
             log_level: Logging level.
         """
         # Define channels
@@ -39,7 +37,6 @@ class CodeGenerator(Agent):
         
         super().__init__(
             name="code_generator",
-            redis_url=redis_url,
             channels=[self.input_channel],
             log_level=log_level
         )

@@ -1,5 +1,3 @@
-
-
 """Coordinator agent module.
 
 This module contains the Coordinator agent responsible for orchestrating
@@ -28,13 +26,11 @@ class Coordinator(Agent):
     
     def __init__(
         self,
-        redis_url: str = "redis://localhost:6379/0",
         log_level: int = logging.INFO
     ) -> None:
         """Initialize the coordinator agent.
         
         Args:
-            redis_url: Redis connection string.
             log_level: Logging level.
         """
         # Define channels
@@ -46,7 +42,6 @@ class Coordinator(Agent):
         # Initialize base with all channels we need to listen to
         super().__init__(
             name="coordinator",
-            redis_url=redis_url,
             channels=[self.request_channel, self.generator_channel, self.validator_channel],
             log_level=log_level
         )

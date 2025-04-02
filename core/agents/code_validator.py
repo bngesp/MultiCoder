@@ -25,13 +25,11 @@ class CodeValidator(Agent):
     
     def __init__(
         self,
-        redis_url: str = "redis://localhost:6379/0",
         log_level: int = logging.INFO
     ) -> None:
         """Initialize the code validator agent.
         
         Args:
-            redis_url: Redis connection string.
             log_level: Logging level.
         """
         # Define channels
@@ -40,7 +38,6 @@ class CodeValidator(Agent):
         
         super().__init__(
             name="code_validator",
-            redis_url=redis_url,
             channels=[self.input_channel],
             log_level=log_level
         )
@@ -117,7 +114,7 @@ class CodeValidator(Agent):
                 if indent > 0:
                     indent_sizes.add(indent)
         
-        # Commenté pour éviter les faux positifs
+        # Commenting out for now to avoid false positives
         # if len(indent_sizes) > 1:
         #     issues.append("Inconsistent indentation detected")
         

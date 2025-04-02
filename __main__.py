@@ -19,14 +19,20 @@ from utils.logging import configure_logger as configure_logging
 
 
 
-async def run_coordinator(redis_url: str, log_level: str) -> None:
+async def run_coordinator(log_level: str) -> None:
     """Run the coordinator agent.
     
     Args:
-        redis_url: Redis connection URL.
         log_level: Logging level.
     """
-    agent = Coordinator(redis_url=redis_url, log_level=getattr(logging, log_level))
+    # Import here to avoid circular imports
+    from core.mcp.bus import message_bus
+    
+    # Start the MCP bus first
+    await message_bus.start()
+    
+    # Create and start the agent
+    agent = Coordinator(log_level=getattr(logging, log_level))
     await agent.start()
     
     try:
@@ -37,16 +43,23 @@ async def run_coordinator(redis_url: str, log_level: str) -> None:
         print("\nStopping coordinator...")
     finally:
         await agent.stop()
+        await message_bus.stop()
 
 
-async def run_generator(redis_url: str, log_level: str) -> None:
+async def run_generator(log_level: str) -> None:
     """Run the code generator agent.
     
     Args:
-        redis_url: Redis connection URL.
         log_level: Logging level.
     """
-    agent = CodeGenerator(redis_url=redis_url, log_level=getattr(logging, log_level))
+    # Import here to avoid circular imports
+    from core.mcp.bus import message_bus
+    
+    # Start the MCP bus first
+    await message_bus.start()
+    
+    # Create and start the agent
+    agent = CodeGenerator(log_level=getattr(logging, log_level))
     await agent.start()
     
     try:
@@ -57,16 +70,23 @@ async def run_generator(redis_url: str, log_level: str) -> None:
         print("\nStopping code generator...")
     finally:
         await agent.stop()
+        await message_bus.stop()
 
 
-async def run_validator(redis_url: str, log_level: str) -> None:
+async def run_validator(log_level: str) -> None:
     """Run the code validator agent.
     
     Args:
-        redis_url: Redis connection URL.
         log_level: Logging level.
     """
-    agent = CodeValidator(redis_url=redis_url, log_level=getattr(logging, log_level))
+    # Import here to avoid circular imports
+    from core.mcp.bus import message_bus
+    
+    # Start the MCP bus first
+    await message_bus.start()
+    
+    # Create and start the agent
+    agent = CodeValidator(log_level=getattr(logging, log_level))
     await agent.start()
     
     try:
@@ -77,19 +97,25 @@ async def run_validator(redis_url: str, log_level: str) -> None:
         print("\nStopping code validator...")
     finally:
         await agent.stop()
+        await message_bus.stop()
 
 
-async def run_all(redis_url: str, log_level: str) -> None:
+async def run_all(log_level: str) -> None:
     """Run all the agents together.
     
     Args:
-        redis_url: Redis connection URL.
         log_level: Logging level.
     """
+    # Import here to avoid circular imports
+    from core.mcp.bus import message_bus
+    
     # Create all agents
-    coordinator = Coordinator(redis_url=redis_url, log_level=getattr(logging, log_level))
-    generator = CodeGenerator(redis_url=redis_url, log_level=getattr(logging, log_level))
-    validator = CodeValidator(redis_url=redis_url, log_level=getattr(logging, log_level))
+    coordinator = Coordinator(log_level=getattr(logging, log_level))
+    generator = CodeGenerator(log_level=getattr(logging, log_level))
+    validator = CodeValidator(log_level=getattr(logging, log_level))
+    
+    # Start the MCP bus first
+    await message_bus.start()
     
     # Start all agents
     await coordinator.start()
@@ -109,6 +135,9 @@ async def run_all(redis_url: str, log_level: str) -> None:
         await validator.stop()
         await generator.stop()
         await coordinator.stop()
+        
+        # Stop the MCP bus last
+        await message_bus.stop()
 
 
 def parse_args() -> argparse.Namespace:
@@ -126,12 +155,6 @@ def parse_args() -> argparse.Namespace:
         choices=["all", "coordinator", "generator", "validator"],
         default="all",
         help="Component to run (default: all)"
-    )
-    parser.add_argument(
-        "--redis-url",
-        type=str,
-        default=config["redis"]["url"],
-        help=f"Redis connection URL (default: {config['redis']['url']})"
     )
     parser.add_argument(
         "--log-level",
@@ -152,13 +175,13 @@ async def main() -> None:
     
     # Run the selected component
     if args.component == "coordinator":
-        await run_coordinator(args.redis_url, args.log_level)
+        await run_coordinator(args.log_level)
     elif args.component == "generator":
-        await run_generator(args.redis_url, args.log_level)
+        await run_generator(args.log_level)
     elif args.component == "validator":
-        await run_validator(args.redis_url, args.log_level)
+        await run_validator(args.log_level)
     else:  # all
-        await run_all(args.redis_url, args.log_level)
+        await run_all(args.log_level)
 
 
 if __name__ == "__main__":
